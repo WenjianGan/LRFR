@@ -2,5 +2,5 @@ This is official implement for LRFP
 
 
 
-#Acknowledgment
+Acknowledgment
 Sample4Geo
