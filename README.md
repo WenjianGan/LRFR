@@ -1,6 +1,11 @@
-This is official implement for LRFR
+# LRFR
+This is official implements for LRFR.
 
+We will release the training code after the paper is accepted.
 
+# How to use
+You need to replace ‘data_folder’ with your local path in predict_u1652.py.
 
-Acknowledgment
-Sample4Geo
+# Acknowledgment
+- [Sample4Geo](https://github.com/Skyy93/Sample4Geo)
+- [SAIG](https://github.com/yanghongji2007/SAIG)
