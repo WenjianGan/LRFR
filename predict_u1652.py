@@ -29,7 +29,7 @@ class Configuration:
     normalize_features: bool = True
 
     dataset: str = 'U1652-S2D'  # 'U1652-D2S' | 'U1652-S2D'
-    data_folder: str = r"F:\Data\U1652"
+    data_folder: str = r"/data/U1652"
 
     # set num_workers to 0 if on Windows
     num_workers: int = 0 if os.name == 'nt' else 12
@@ -50,11 +50,11 @@ class Configuration:
 config = Configuration()
 
 if config.dataset == 'U1652-D2S':
-    config.query_folder_test = r'F:\Data\U1652/test/query_drone'
-    config.gallery_folder_test = r'F:\Data\U1652/test/gallery_satellite'
+    config.query_folder_test = r'/data/U1652/test/query_drone'
+    config.gallery_folder_test = r'/data/U1652/test/gallery_satellite'
 elif config.dataset == 'U1652-S2D':
-    config.query_folder_test = r'F:\Data\U1652/test/query_satellite'
-    config.gallery_folder_test = r'F:\Data\U1652/test/gallery_drone'
+    config.query_folder_test = r'/data/U1652/test/query_satellite'
+    config.gallery_folder_test = r'/data/U1652/test/gallery_drone'
 
 if __name__ == '__main__':
     val_transforms = get_transforms((config.img_size, config.img_size))
