@@ -1,6 +1,25 @@
+# -*- coding: utf-8 -*-
+# @Author : Gan
+# @Time : 2024/5/7 21:30
+
 import os
+import cv2
+import numpy as np
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+from torch.utils.data import Dataset
+import copy
+from tqdm import tqdm
+import time
+import random
+
+import os
+import torch
+import torchvision
 from dataclasses import dataclass
 from torch.utils.data import DataLoader
+from torch.cuda.amp import autocast
+
 import torch
 
 from models.model import GeoModel
@@ -29,7 +48,7 @@ class Configuration:
     normalize_features: bool = True
 
     dataset: str = 'U1652-S2D'  # 'U1652-D2S' | 'U1652-S2D'
-    data_folder: str = r"/data/U1652"
+    data_folder: str = r"/software/Data/U1652"
 
     # set num_workers to 0 if on Windows
     num_workers: int = 0 if os.name == 'nt' else 12
@@ -40,7 +59,7 @@ class Configuration:
     cudnn_benchmark: bool = True
     # make cudnn deterministic
     cudnn_deterministic: bool = False
-    model_path = './checkpoints/best_score.pth'
+    model_path = './checkpoints/U1652-D2S_ConvNeXt_GSRA_SALAD/09-29-09-32_lr-0.0001_loss-SemiTriplet/best_score.pth'
 
 
 # -----------------------------------------------------------------------------#
@@ -50,14 +69,14 @@ class Configuration:
 config = Configuration()
 
 if config.dataset == 'U1652-D2S':
-    config.query_folder_test = r'/data/U1652/test/query_drone'
-    config.gallery_folder_test = r'/data/U1652/test/gallery_satellite'
+    config.query_folder_test = r'/software/Data/U1652/test/query_drone'
+    config.gallery_folder_test = r'/software/Data/U1652/test/gallery_satellite'
 elif config.dataset == 'U1652-S2D':
-    config.query_folder_test = r'/data/U1652/test/query_satellite'
-    config.gallery_folder_test = r'/data/U1652/test/gallery_drone'
+    config.query_folder_test = r'/software/Data/U1652/test/query_satellite'
+    config.gallery_folder_test = r'/software/Data/U1652/test/gallery_drone'
 
 if __name__ == '__main__':
-    val_transforms = get_transforms((config.img_size, config.img_size))
+    val_transforms, _, _ = get_transforms((config.img_size, config.img_size))
     model = GeoModel(config)
     model.load_state_dict(torch.load(config.model_path))
     model = model.to(config.device)
