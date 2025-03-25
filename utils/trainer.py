@@ -5,6 +5,100 @@ from torch.cuda.amp import autocast
 import torch.nn.functional as F
 import numpy as np
 import gc
+from utils.util import AverageMeter
+
+
+def train(config, model, dataloader, loss_function, optimizer, scheduler=None, scaler=None):
+    # set model train mode
+    model.train()
+
+    losses = AverageMeter()
+
+    # wait before starting progress bar
+    time.sleep(0.1)
+
+    # Zero gradients for first step
+    optimizer.zero_grad(set_to_none=True)
+
+    step = 1
+
+    if config.verbose:
+        bar = tqdm(dataloader, total=len(dataloader))
+    else:
+        bar = dataloader
+
+    # for loop over one epoch
+    for query, reference, ids in bar:
+
+        if scaler:
+            with autocast():
+
+                # data (batches) to device
+                query = query.to(config.device)
+                reference = reference.to(config.device)
+
+                # Forward pass
+                features1, features2 = model(query, reference)
+                loss = loss_function(features1, features2)
+                losses.update(loss.item())
+
+            scaler.scale(loss).backward()
+
+            # Gradient clipping
+            if config.clip_grad:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_value_(model.parameters(), config.clip_grad)
+
+                # Update model parameters (weights)
+            scaler.step(optimizer)
+            scaler.update()
+
+            # Zero gradients for next step
+            optimizer.zero_grad()
+
+            # Scheduler
+            if scheduler is not None:
+                scheduler.step()
+
+        else:
+
+            # data (batches) to device
+            query = query.to(config.device)
+            reference = reference.to(config.device)
+
+            # Forward pass
+            features1, features2 = model(query, reference)
+            loss = loss_function(features1, features2)
+            losses.update(loss.item())
+
+            # Calculate gradient using backward pass
+            loss.backward()
+
+            # Gradient clipping
+            if config.clip_grad:
+                torch.nn.utils.clip_grad_value_(model.parameters(), config.clip_grad)
+
+                # Update model parameters (weights)
+            optimizer.step()
+            # Zero gradients for next step
+            optimizer.zero_grad()
+
+            # Scheduler
+            if scheduler is not None:
+                scheduler.step()
+
+        if config.verbose:
+            monitor = {"loss": "{:.4f}".format(loss.item()),
+                       "loss_avg": "{:.4f}".format(losses.avg),
+                       "lr": "{:.6f}".format(optimizer.param_groups[0]['lr'])}
+            bar.set_postfix(ordered_dict=monitor)
+
+        step += 1
+
+    if config.verbose:
+        bar.close()
+
+    return losses.avg
 
 
 def predict(config, model, dataloader):
