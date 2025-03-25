@@ -8,3 +8,4 @@ You need to replace ‘data_folder’ with your local path in train_university.p
 # Acknowledgment
 - [Sample4Geo](https://github.com/Skyy93/Sample4Geo)
 - [SAIG](https://github.com/yanghongji2007/SAIG)
+- [SALAD](https://github.com/serizba/salad)
