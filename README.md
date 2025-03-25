@@ -1,4 +1,4 @@
-# LRFR
+# Learning Robust Feature Representation for Cross-View Image Geo-localization
 This is official implements for [Learning Robust Feature Representation for Cross-View Image Geo-localization](https://ieeexplore.ieee.org/document/10896706).
 
 
